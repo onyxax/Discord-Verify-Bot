@@ -1,7 +1,22 @@
+# Dependencies
 node_modules/
+
+# Environment files (secrets)
 .env
+.env.*
+!.env.example
+
+# Wrangler
 .wrangler/
+worker/wrangler.toml
+!worker/wrangler.example.toml
+
+# Build
 dist/
+
+# OS
 .DS_Store
 Thumbs.db
+
+# Logs
 *.log

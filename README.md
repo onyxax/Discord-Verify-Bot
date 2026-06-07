@@ -1,127 +1,246 @@
+<div align="center">
+
 # Verify Hydra
 
-Decentralized Discord verification microservice. Pull-based architecture using Discord.js, Cloudflare Workers, and Supabase PostgreSQL.
+**Open source Discord verification system built for scale.**
 
-## Architecture
+No callback servers. No webhook dependencies. Just a bot, an edge worker, and a database.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/Node.js-%3E%3D18-brightgreen.svg)](https://nodejs.org)
+[![Discord.js](https://img.shields.io/badge/Discord.js-v14-blue.svg)](https://discord.js.org)
+[![Cloudflare Workers](https://img.shields.io/badge/Cloudflare-Workers-orange.svg)](https://workers.cloudflare.com)
+
+</div>
+
+---
+
+## What is this?
+
+Verify Hydra is a decentralized Discord verification microservice. It protects your server from alt accounts, VPNs, and bots using a pull-based architecture where the Discord bot polls a database for verification status — no Express server, no callback URLs, no port forwarding.
+
+**You can name it whatever you want.** Fork it, rename it, brand it as your own. The code is yours.
+
+## How it works
 
 ```
-Discord User
-    |
-    v
-[Discord Bot] --POST--> [Cloudflare Worker] --INSERT--> [Supabase DB]
-    ^                           |
-    |                           v
-    |                    [Verification Page]
-    |                           |
-    |                           v
-    +----Poll (every 3s)--------+
+User clicks "Verify My Account"
+        |
+        v
+Discord Bot generates a token
+and sends it to the Worker
+        |
+        v
+Cloudflare Worker creates a
+verification session in Supabase
+        |
+        v
+User completes captcha on the
+edge-hosted verification page
+        |
+        v
+Worker updates session status
+to "verified" in the database
+        |
+        v
+Bot polls Supabase every 3 seconds,
+detects the change, assigns the role
 ```
 
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| Discord Bot | `/bot` | Guild setup, interaction handling, role assignment |
-| Cloudflare Worker | `/worker` | Edge API, token generation, captcha verification |
-| Database | `/database` | Supabase PostgreSQL schema |
+No incoming HTTP connections. No firewall rules. The bot pulls data out — it never receives data in.
 
 ## Features
 
-- Dual-layer captcha (hCaptcha + image captcha)
-- Pull-based architecture (no callback server)
-- Matte Black/White UI design
-- Role hierarchy safety checks
-- Token-based session management (5-minute expiry)
-- Single-file Cloudflare Worker deployment
+| Feature | Description |
+|---------|-------------|
+| **Dual-Layer Captcha** | hCaptcha + SVG image captcha for maximum security |
+| **Pull-Based Architecture** | Bot polls database, no callback server needed |
+| **Single-File Worker** | Entire backend in one `index.js` — deploy with one command |
+| **Edge Verification** | Captcha page hosted on Cloudflare's global edge network |
+| **Matte Black/White UI** | Clean, professional verification page with dark and light themes |
+| **Role Hierarchy Safety** | Bot checks role positions before assigning — never breaks your hierarchy |
+| **Token Expiry** | Verification links expire in 5 minutes for security |
+| **Multi-Server** | One bot instance, unlimited servers |
+| **Zero Dependencies** | Worker uses only native `fetch` — no npm packages |
+
+## Project Structure
+
+```
+verify-hydra/
+├── bot/                    # Discord bot (Node.js)
+│   ├── src/
+│   │   ├── index.js        # Entry point
+│   │   ├── events/
+│   │   │   ├── guildCreate.js       # Control panel on bot join
+│   │   │   └── interactionCreate.js # All interactions + poller
+│   │   └── utils/
+│   │       └── supabase.js  # Database queries
+│   ├── .env.example         # Environment template
+│   └── package.json
+├── worker/                 # Cloudflare Worker (single file)
+│   ├── index.js            # Everything: API + frontend + captcha
+│   ├── wrangler.example.toml
+│   └── package.json
+├── database/
+│   └── schema.sql          # Supabase PostgreSQL schema
+├── LICENSE                 # MIT
+└── README.md
+```
 
 ## Prerequisites
 
-- Node.js >= 18
-- Discord Bot token ([Developer Portal](https://discord.com/developers/applications))
-- Cloudflare account ([Cloudflare Dashboard](https://dash.cloudflare.com))
-- Supabase project ([Supabase Dashboard](https://supabase.com/dashboard))
+| Service | Purpose | Link |
+|---------|---------|------|
+| **Discord** | Bot token + client ID | [Developer Portal](https://discord.com/developers/applications) |
+| **Cloudflare** | Edge worker hosting | [Dashboard](https://dash.cloudflare.com) |
+| **Supabase** | PostgreSQL database | [Dashboard](https://supabase.com/dashboard) |
+| **hCaptcha** | Captcha verification (optional) | [hCaptcha.com](https://www.hcaptcha.com) |
+| **Node.js 18+** | Running the bot locally | [nodejs.org](https://nodejs.org) |
 
-## Quick Start
+## Setup
 
-### 1. Clone & Install
+### 1. Clone and install
 
 ```bash
-git clone https://github.com/Nexus-02/verify-hydra.git
+git clone https://github.com/your-username/verify-hydra.git
 cd verify-hydra
 npm install
 ```
 
 ### 2. Database
 
-Run `database/schema.sql` in the **Supabase SQL Editor** to create the required tables.
+Open your Supabase project, go to the SQL Editor, and run:
+
+```sql
+-- Paste the contents of database/schema.sql here
+```
+
+This creates two tables:
+- `guild_settings` — per-server configuration
+- `active_sessions` — verification tokens and status
 
 ### 3. Cloudflare Worker
 
 ```bash
 cd worker
 npm install
+
+# Login to Cloudflare
 npx wrangler login
-npx wrangler secret put HCAPTCHA_SECRET
+
+# Set secrets (you'll be prompted to paste each value)
 npx wrangler secret put INTERNAL_API_KEY
 npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
-npx wrangler deploy
+npx wrangler secret put HCAPTCHA_SECRET
 ```
 
-Update `wrangler.toml` with your values:
+Edit `wrangler.toml` with your public values:
 
 ```toml
+name = "your-worker-name"
+main = "index.js"
+compatibility_date = "2026-06-07"
+
 [vars]
 SUPABASE_URL = "https://your-project.supabase.co"
 HCAPTCHA_SITEKEY = "your-hcaptcha-sitekey"
 FRONTEND_BASE_URL = "https://your-worker.workers.dev"
 ```
 
+Deploy:
+
+```bash
+npx wrangler deploy
+```
+
+Your worker URL will be something like `https://your-worker.your-subdomain.workers.dev`.
+
 ### 4. Discord Bot
 
 ```bash
-cd bot
+cd ../bot
 cp .env.example .env
-# Fill in all values in .env
+```
+
+Fill in `bot/.env`:
+
+```env
+DISCORD_TOKEN=your_bot_token_here
+DISCORD_CLIENT_ID=your_client_id_here
+HYDRA_WORKER_URL=https://your-worker.workers.dev
+INTERNAL_API_KEY=same_key_you_set_in_worker
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+```
+
+Start the bot:
+
+```bash
 npm install
 npm start
 ```
 
-### 5. Discord Server Setup
+### 5. Server Configuration
 
-1. Bot creates a `verify-hydra-control` channel on join
-2. Select: verification channel, verified role, quarantine role, security level
-3. Click **Save and Initialize** — the verification prompt is posted automatically
+When the bot joins your server, it creates a `verify-hydra-control` channel with a configuration panel:
 
-## Environment Variables
+1. **Verification Channel** — where the "Verify My Account" prompt appears
+2. **Verified Role** — role assigned after successful verification
+3. **Quarantine Role** — role for unverified members (optional)
+4. **Security Level** — choose your captcha强度
 
-### Bot (`bot/.env`)
-
-| Variable | Description |
-|----------|-------------|
-| `DISCORD_TOKEN` | Bot token from Developer Portal |
-| `DISCORD_CLIENT_ID` | Bot application client ID |
-| `HYDRA_WORKER_URL` | Deployed worker URL |
-| `INTERNAL_API_KEY` | Shared secret (must match worker) |
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key |
-
-### Worker (Cloudflare Secrets / `wrangler.toml`)
-
-| Variable | Description |
-|----------|-------------|
-| `SUPABASE_URL` | Supabase project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key |
-| `INTERNAL_API_KEY` | Shared secret (must match bot) |
-| `HCAPTCHA_SITEKEY` | hCaptcha site key (public) |
-| `HCAPTCHA_SECRET` | hCaptcha secret key |
-| `FRONTEND_BASE_URL` | Worker public URL |
+Click **Save and Initialize** and the verification prompt is posted automatically.
 
 ## Security Levels
 
-| Level | Description |
+| Level | What happens |
 |-------|-------------|
-| `image-captcha` | SVG captcha text challenge |
-| `hcaptcha` | hCaptcha widget only |
-| `dual-layer` | hCaptcha + image captcha (recommended) |
+| `image-captcha` | User solves a text-based SVG captcha |
+| `hcaptcha` | User solves an hCaptcha widget |
+| `dual-layer` | Both hCaptcha AND image captcha (recommended) |
+
+## Environment Variables Reference
+
+### Bot (`bot/.env`)
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DISCORD_TOKEN` | Yes | Bot token from Discord Developer Portal |
+| `DISCORD_CLIENT_ID` | Yes | Application client ID |
+| `HYDRA_WORKER_URL` | Yes | Deployed Cloudflare Worker URL |
+| `INTERNAL_API_KEY` | Yes | Shared secret (min 32 chars, must match worker) |
+| `SUPABASE_URL` | Yes | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes | Supabase service role key |
+
+### Worker (Cloudflare)
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `SUPABASE_URL` | Var | Supabase project URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Secret | Supabase service role key |
+| `INTERNAL_API_KEY` | Secret | Shared secret (must match bot) |
+| `HCAPTCHA_SITEKEY` | Var | hCaptcha site key (public) |
+| `HCAPTCHA_SECRET` | Secret | hCaptcha secret key |
+| `FRONTEND_BASE_URL` | Var | Worker public URL |
+
+## FAQ
+
+**Q: Can I use this without hCaptcha?**
+Yes. Set the security level to `image-captcha` and don't configure `HCAPTCHA_SECRET`. The worker will use only the built-in SVG captcha.
+
+**Q: Can I customize the verification page?**
+Yes. The entire frontend is embedded in `worker/index.js`. Edit the CSS and HTML directly.
+
+**Q: Does this work with multiple servers?**
+Yes. One bot instance can serve unlimited servers. Each server has its own configuration stored in the database.
+
+**Q: Why pull-based instead of webhooks?**
+No need to expose your bot to incoming HTTP traffic. No firewall configuration, no port forwarding, no callback URL management. The bot polls the database — simple and secure.
+
+## Contributing
+
+Contributions are welcome. Open an issue or submit a pull request.
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE) — use it however you want.

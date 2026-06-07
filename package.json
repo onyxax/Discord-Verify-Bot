@@ -2,7 +2,7 @@
   "name": "verify-hydra",
   "version": "1.0.0",
   "private": true,
-  "description": "Decentralized Discord verification microservice",
+  "description": "Open source Discord verification system with Cloudflare Workers and Supabase",
   "scripts": {
     "bot:install": "cd bot && npm install",
     "bot:start": "cd bot && npm start",
@@ -11,11 +11,6 @@
     "worker:deploy": "cd worker && npx wrangler deploy",
     "db:migrate": "echo 'Run database/schema.sql in Supabase SQL Editor'"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Nexus-02/verify-hydra.git"
-  },
-  "keywords": ["discord", "verification", "captcha", "cloudflare-workers", "supabase"],
-  "author": "Nexus-02",
+  "keywords": ["discord", "verification", "captcha", "cloudflare-workers", "supabase", "open-source"],
   "license": "MIT"
 }
