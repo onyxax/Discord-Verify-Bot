@@ -62,6 +62,9 @@ No incoming HTTP connections. No firewall rules. The bot pulls data out — it n
 | **Token Expiry** | Verification links expire in 5 minutes for security |
 | **Multi-Server** | One bot instance, unlimited servers |
 | **Zero Dependencies** | Worker uses only native `fetch` — no npm packages |
+| **Auto-Quarantine** | New members automatically get the unverified role on join |
+| **Slash Commands** | `/panel` and `/setup` for quick configuration |
+| **Graceful Fallback** | Falls back to system channel if control channel creation fails |
 
 ## Project Structure
 
@@ -70,9 +73,11 @@ verify-hydra/
 ├── bot/                    # Discord bot (Node.js)
 │   ├── src/
 │   │   ├── index.js        # Entry point
+│   │   ├── deploy-commands.js    # Register slash commands
 │   │   ├── events/
-│   │   │   ├── guildCreate.js       # Control panel on bot join
-│   │   │   └── interactionCreate.js # All interactions + poller
+│   │   │   ├── guildCreate.js        # Control panel on bot join
+│   │   │   ├── guildMemberAdd.js     # Auto-assign unverified role
+│   │   │   └── interactionCreate.js  # All interactions + poller
 │   │   └── utils/
 │   │       └── supabase.js  # Database queries
 │   ├── .env.example         # Environment template
@@ -173,23 +178,57 @@ SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
 ```
 
-Start the bot:
+Install dependencies and register slash commands:
 
 ```bash
 npm install
+node src/deploy-commands.js
 npm start
 ```
 
 ### 5. Server Configuration
 
-When the bot joins your server, it creates a `verify-hydra-control` channel with a configuration panel:
+When the bot joins your server, it tries to create a `verify-hydra-control` channel with a configuration panel. If it can't create the channel (missing permissions), it sends the panel to the system channel instead.
 
-1. **Verification Channel** — where the "Verify My Account" prompt appears
-2. **Verified Role** — role assigned after successful verification
-3. **Quarantine Role** — role for unverified members (optional)
-4. **Security Level** — choose your captcha强度
+**Option A: Automatic (bot join)**
+- Bot creates the control panel channel automatically
+- Select: verification channel, verified role, quarantine role, security level
+- Click **Save and Initialize**
 
-Click **Save and Initialize** and the verification prompt is posted automatically.
+**Option B: `/panel` command**
+- Type `/panel` in any channel (Admin only)
+- Same configuration panel as automatic setup
+
+**Option C: `/setup` command (fastest)**
+- Type directly in any channel:
+
+```
+/setup channel:#verify verified_role:@Verified quarantine_role:@Unverified security:dual-layer
+```
+
+This configures everything in one command — no menus needed.
+
+### Auto-Quarantine
+
+New members automatically receive the unverified role when they join. This requires:
+- The unverified role to be set in the configuration
+- The bot's role to be above the unverified role in the hierarchy
+
+## Slash Commands
+
+| Command | Description | Permission |
+|---------|-------------|------------|
+| `/panel` | Opens the configuration panel | Administrator |
+| `/setup` | Quick setup with channel and roles | Administrator |
+
+### `/setup` Options
+
+| Option | Type | Required | Description |
+|--------|------|----------|-------------|
+| `channel` | Channel | Yes | Where the verification prompt appears |
+| `verified_role` | Role | Yes | Role assigned after verification |
+| `quarantine_role` | Role | Yes | Role for new unverified members |
+| `security` | Choice | Yes | `image-captcha`, `hcaptcha`, or `dual-layer` |
 
 ## Security Levels
 
@@ -236,6 +275,12 @@ Yes. One bot instance can serve unlimited servers. Each server has its own confi
 
 **Q: Why pull-based instead of webhooks?**
 No need to expose your bot to incoming HTTP traffic. No firewall configuration, no port forwarding, no callback URL management. The bot polls the database — simple and secure.
+
+**Q: Bot can't create the control channel?**
+Grant the bot **Administrator** permission and re-invite. Or use `/panel` or `/setup` as a fallback.
+
+**Q: How do I configure quickly?**
+Use `/setup #channel @verified-role @quarantine-role dual-layer` — one command, done.
 
 ## Contributing
 
