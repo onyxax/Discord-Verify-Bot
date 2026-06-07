@@ -172,5 +172,8 @@ export async function handleGuildCreate(client, guild) {
     console.log(`[Verify Hydra] Control panel created in ${guild.name} (${guild.id})`);
   } catch (error) {
     console.error(`[Verify Hydra] Failed to create control panel in ${guild.name}:`, error.message);
+    if (error.message.includes('Missing Permissions') || error.code === 50013) {
+      console.error(`[Verify Hydra] FIX: Ensure the bot has Administrator permission in "${guild.name}"`);
+    }
   }
 }
