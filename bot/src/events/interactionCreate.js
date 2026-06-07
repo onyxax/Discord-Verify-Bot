@@ -1,6 +1,7 @@
 import {
   EmbedBuilder,
   ActionRowBuilder,
+  StringSelectMenuBuilder,
   ButtonBuilder,
   ButtonStyle,
   PermissionFlagsBits,
@@ -13,6 +14,10 @@ const activePollers = new Map();
 
 export async function handleInteractionCreate(client, interaction) {
   try {
+    if (interaction.isChatInputCommand()) {
+      return handleSlashCommand(client, interaction);
+    }
+
     if (interaction.isStringSelectMenu()) {
       return handleSelectMenu(interaction);
     }
@@ -33,6 +38,132 @@ export async function handleInteractionCreate(client, interaction) {
     } else {
       await interaction.reply(reply);
     }
+  }
+}
+
+async function handleSlashCommand(client, interaction) {
+  if (interaction.commandName === 'panel') {
+    if (!interaction.memberPermissions.has(PermissionFlagsBits.Administrator)) {
+      return interaction.reply({
+        content: 'Server Administrator required.',
+        flags: [MessageFlags.Ephemeral],
+      });
+    }
+
+    const embed = new EmbedBuilder()
+      .setTitle('VERIFY HYDRA | CONTROL PANEL')
+      .setDescription(
+        'Configure the verification system for this server.\n' +
+        'All settings are restricted to the Server Owner.\n\n' +
+        '-> Step 1: Select the public verification channel\n' +
+        '-> Step 2: Select the role granted upon verification\n' +
+        '-> Step 3: Select the quarantine role for new members\n' +
+        '-> Step 4: Choose the security intensity level\n' +
+        '-> Step 5: Click "Save and Initialize"'
+      )
+      .setColor(0xffffff)
+      .addFields(
+        {
+          name: '\u2588 TARGET CHANNEL',
+          value: 'Select the channel where the verification prompt will be posted.',
+          inline: false,
+        },
+        {
+          name: '\u2588 VERIFIED ROLE',
+          value: 'Select the role assigned to verified members.',
+          inline: false,
+        },
+        {
+          name: '\u2588 QUARANTINE ROLE',
+          value: 'Select the role assigned to new unverified members.',
+          inline: false,
+        },
+        {
+          name: '\u2588 SECURITY LEVEL',
+          value:
+            '`image-captcha` | Image-based challenge\n' +
+            '`hcaptcha` | hCaptcha widget integration\n' +
+            '`dual-layer` | Both captcha layers (Recommended)',
+          inline: false,
+        }
+      )
+      .setFooter({ text: 'Verify Hydra | Automated Security Perimeter' })
+      .setTimestamp();
+
+    const channels = interaction.guild.channels.cache.filter((ch) => ch.type === 0);
+    const roles = interaction.guild.roles.cache.filter((r) => !r.managed && r.id !== interaction.guild.id);
+
+    const components = [];
+
+    if (channels.size > 0) {
+      const channelSelect = new StringSelectMenuBuilder()
+        .setCustomId('hydra_select_channel')
+        .setPlaceholder('Select verification channel')
+        .addOptions(
+          channels.first(25).map((ch) => ({
+            label: ch.name,
+            value: ch.id,
+            description: `#${ch.name}`,
+          }))
+        );
+      components.push(new ActionRowBuilder().addComponents(channelSelect));
+    }
+
+    if (roles.size > 0) {
+      const verifiedRoleSelect = new StringSelectMenuBuilder()
+        .setCustomId('hydra_select_role')
+        .setPlaceholder('Select verified role')
+        .addOptions(
+          roles.first(25).map((r) => ({
+            label: r.name,
+            value: r.id,
+            description: `Role: ${r.name}`,
+          }))
+        );
+      components.push(new ActionRowBuilder().addComponents(verifiedRoleSelect));
+
+      const unverifiedRoleSelect = new StringSelectMenuBuilder()
+        .setCustomId('hydra_select_unverified_role')
+        .setPlaceholder('Select quarantine role')
+        .addOptions(
+          roles.first(25).map((r) => ({
+            label: r.name,
+            value: r.id,
+            description: `Role: ${r.name}`,
+          }))
+        );
+      components.push(new ActionRowBuilder().addComponents(unverifiedRoleSelect));
+    }
+
+    const securitySelect = new StringSelectMenuBuilder()
+      .setCustomId('hydra_select_security')
+      .setPlaceholder('Select security intensity')
+      .addOptions(
+        {
+          label: 'Image Captcha',
+          value: 'image-captcha',
+          description: 'Visual challenge verification',
+        },
+        {
+          label: 'hCaptcha',
+          value: 'hcaptcha',
+          description: 'hCaptcha widget verification',
+        },
+        {
+          label: 'Dual-Layer (Recommended)',
+          value: 'dual-layer',
+          description: 'Maximum security - both captcha types',
+        }
+      );
+    components.push(new ActionRowBuilder().addComponents(securitySelect));
+
+    const saveButton = new ButtonBuilder()
+      .setCustomId('hydra_save_config')
+      .setLabel('Save and Initialize')
+      .setStyle(ButtonStyle.Success);
+    components.push(new ActionRowBuilder().addComponents(saveButton));
+
+    await interaction.reply({ embeds: [embed], components, flags: [MessageFlags.Ephemeral] });
   }
 }
 
