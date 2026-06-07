@@ -1,0 +1,14 @@
+{
+  "name": "verify-hydra-worker",
+  "version": "1.0.0",
+  "description": "Verify Hydra - Cloudflare Worker (The Brain)",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "wrangler": "^3.60.0"
+  }
+}

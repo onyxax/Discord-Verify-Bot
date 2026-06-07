@@ -1,0 +1,13 @@
+name = "verify-hydra-worker"
+main = "index.js"
+compatibility_date = "2026-06-07"
+
+[vars]
+SUPABASE_URL = "https://your-project.supabase.co"
+HCAPTCHA_SITEKEY = "your-hcaptcha-sitekey"
+FRONTEND_BASE_URL = "https://your-worker.workers.dev"
+
+# Secrets (set via `wrangler secret put <NAME>`)
+# INTERNAL_API_KEY = "your-internal-api-key"
+# SUPABASE_SERVICE_ROLE_KEY = "your-supabase-service-role-key"
+# HCAPTCHA_SECRET = "your-hcaptcha-secret"
