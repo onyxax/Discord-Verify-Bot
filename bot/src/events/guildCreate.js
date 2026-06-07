@@ -10,7 +10,7 @@ import {
 
 export async function handleGuildCreate(client, guild) {
   try {
-    const owner = await guild.members.fetch(guild.ownerId).catch(() => null);
+    let controlChannel = null;
 
     const permissionOverwrites = [
       {
@@ -32,6 +32,7 @@ export async function handleGuildCreate(client, guild) {
       },
     ];
 
+    const owner = await guild.members.fetch(guild.ownerId).catch(() => null);
     if (owner) {
       permissionOverwrites.push({
         id: owner.id,
@@ -44,12 +45,21 @@ export async function handleGuildCreate(client, guild) {
       });
     }
 
-    const controlChannel = await guild.channels.create({
-      name: 'verify-hydra-control',
-      type: ChannelType.GuildText,
-      topic: 'Verify Hydra Configuration Panel | Bot Access Only',
-      permissionOverwrites,
-    });
+    try {
+      controlChannel = await guild.channels.create({
+        name: 'verify-hydra-control',
+        type: ChannelType.GuildText,
+        topic: 'Verify Hydra Configuration Panel | Bot Access Only',
+        permissionOverwrites,
+      });
+    } catch {
+      controlChannel = guild.systemChannel;
+    }
+
+    if (!controlChannel) {
+      console.error(`[Verify Hydra] No accessible channel in ${guild.name}. Grant Administrator permission and re-invite.`);
+      return;
+    }
 
     const embed = new EmbedBuilder()
       .setTitle('VERIFY HYDRA | CONTROL PANEL')
@@ -172,8 +182,5 @@ export async function handleGuildCreate(client, guild) {
     console.log(`[Verify Hydra] Control panel created in ${guild.name} (${guild.id})`);
   } catch (error) {
     console.error(`[Verify Hydra] Failed to create control panel in ${guild.name}:`, error.message);
-    if (error.message.includes('Missing Permissions') || error.code === 50013) {
-      console.error(`[Verify Hydra] FIX: Ensure the bot has Administrator permission in "${guild.name}"`);
-    }
   }
 }
