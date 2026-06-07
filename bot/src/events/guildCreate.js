@@ -174,13 +174,16 @@ export async function handleGuildCreate(client, guild) {
       .setStyle(ButtonStyle.Success);
     components.push(new ActionRowBuilder().addComponents(saveButton));
 
-    await controlChannel.send({
-      embeds: [embed],
-      components,
-    });
-
-    console.log(`[Verify Hydra] Control panel created in ${guild.name} (${guild.id})`);
+    try {
+      await controlChannel.send({
+        embeds: [embed],
+        components,
+      });
+      console.log(`[Verify Hydra] Control panel created in ${guild.name} (${guild.id})`);
+    } catch (sendError) {
+      console.error(`[Verify Hydra] Channel created but panel failed in ${guild.name}:`, sendError.message);
+    }
   } catch (error) {
-    console.error(`[Verify Hydra] Failed to create control panel in ${guild.name}:`, error.message);
+    console.error(`[Verify Hydra] Failed in ${guild.name}:`, error.message);
   }
 }
