@@ -2,6 +2,7 @@ import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
 import { handleGuildCreate } from './events/guildCreate.js';
 import { handleInteractionCreate } from './events/interactionCreate.js';
+import { handleGuildMemberAdd } from './events/guildMemberAdd.js';
 
 const client = new Client({
   intents: [
@@ -16,7 +17,7 @@ client.once('clientReady', () => {
 });
 
 client.on('guildCreate', (guild) => handleGuildCreate(client, guild));
-
+client.on('guildMemberAdd', (member) => handleGuildMemberAdd(client, member));
 client.on('interactionCreate', (interaction) => handleInteractionCreate(client, interaction));
 
 client.login(process.env.DISCORD_TOKEN);
