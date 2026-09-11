@@ -8,7 +8,7 @@
 
 # Verify Hydra
 
-### <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Next-Generation Discord Verification System
+### <img src="https://api.iconify.design/lucide:shield-check.svg?color=%235865f2" width="22" align="absmiddle"> Next-Generation Discord Verification System
 
 **Enterprise-grade security. Decentralized architecture. Zero callback servers.**
 
@@ -22,7 +22,7 @@
 
 </div>
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M4 4.5A2.5 2.5 0 0 1 6.5 7H20"></path></svg> Table of Contents
+## <img src="https://api.iconify.design/lucide:list.svg?color=%235865f2" width="22" align="absmiddle"> Table of Contents
 
 - [Overview](#-overview)
 - [Why Verify Hydra?](#-why-verify-hydra)
@@ -40,20 +40,20 @@
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg> Overview
+## <img src="https://api.iconify.design/lucide:info.svg?color=%235865f2" width="22" align="absmiddle"> Overview
 
 **Verify Hydra** is a sophisticated, open-source Discord verification bot that protects your server from alt accounts, VPNs, and malicious bots using a **revolutionary pull-based architecture**.
 
 Unlike traditional verification systems that require incoming HTTP traffic and complex callback servers, Verify Hydra operates with **zero exposed endpoints** — the bot simply polls a Supabase database for verification status, making it:
 
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></svg> **Simple to Deploy** — No port forwarding, no firewalls, no Docker headaches
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> **Impossible to DDoS** — No callback servers to attack
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v4"></path></svg> **Cryptographically Secure** — Token-based verification with expiry
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg> **Scalable** — One instance, unlimited servers
+<img src="https://api.iconify.design/lucide:file-text.svg?color=%235865f2" width="18" align="absmiddle"> **Simple to Deploy** — No port forwarding, no firewalls, no Docker headaches  
+<img src="https://api.iconify.design/lucide:zap.svg?color=%235865f2" width="18" align="absmiddle"> **Impossible to DDoS** — No callback servers to attack  
+<img src="https://api.iconify.design/lucide:lock.svg?color=%235865f2" width="18" align="absmiddle"> **Cryptographically Secure** — Token-based verification with expiry  
+<img src="https://api.iconify.design/lucide:layers.svg?color=%235865f2" width="18" align="absmiddle"> **Scalable** — One instance, unlimited servers  
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><polygon points="12 2 15.09 10.26 23.77 10.26 17.44 16.7 19.53 24.96 12 19.52 4.47 24.96 6.56 16.7 0.23 10.26 8.91 10.26 12 2"></polygon></svg> Why Verify Hydra?
+## <img src="https://api.iconify.design/lucide:star.svg?color=%235865f2" width="22" align="absmiddle"> Why Verify Hydra?
 
 | Problem | Traditional Solution | Verify Hydra |
 |---------|---------------------|--------------|
@@ -66,18 +66,18 @@ Unlike traditional verification systems that require incoming HTTP traffic and c
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg> Architecture
+## <img src="https://api.iconify.design/lucide:workflow.svg?color=%235865f2" width="22" align="absmiddle"> Architecture
 
 ```
-┌─────────────┐         ┌──────────────┐         ┌────────────────┐
-│  Discord    │         │   Supabase   │         │  Cloudflare    │
-│    Bot      │◄───────►│  PostgreSQL  │◄───────►│    Worker      │
-└─────────────┘  polls  └──────────────┘  reads  └────────────────┘
-       │                       │                        │
-       │ role assignment       │ token storage         │ captcha page
-       │ every 3 seconds       │ session status        │ edge-hosted
-       ▼                       ▼                       ▼
-   Your Guild            Your Database          Global Network
+┌─────────────┐          ┌──────────────┐          ┌────────────────┐
+│   Discord   │          │   Supabase   │          │   Cloudflare   │
+│     Bot     │◄────────►│  PostgreSQL  │◄────────►│     Worker     │
+└─────────────┘  polls   └──────────────┘  reads   └────────────────┘
+       │                        │                        │
+       │ role assignment        │ token storage          │ captcha page
+       │ every 3 seconds        │ session status         │ edge-hosted
+       ▼                        ▼                        ▼
+   Your Guild              Your Database            Global Network
 ```
 
 ### Verification Flow Sequence
@@ -100,30 +100,30 @@ User joins → Bot auto-quarantines → User clicks link → Solves captcha → 
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><polygon points="12 2 15.09 10.26 23.77 10.26 17.44 16.7 19.53 24.96 12 19.52 4.47 24.96 6.56 16.7 0.23 10.26 8.91 10.26 12 2"></polygon></svg> Features
+## <img src="https://api.iconify.design/lucide:sparkles.svg?color=%235865f2" width="22" align="absmiddle"> Features
 
-### <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Security
+### <img src="https://api.iconify.design/lucide:shield-check.svg?color=%235865f2" width="20" align="absmiddle"> Security
 - **Dual-Layer Captcha** — hCaptcha + SVG image verification for maximum protection
 - **Token Expiry** — Verification links auto-expire in 5 minutes
 - **Role Hierarchy Safety** — Bot validates permission hierarchy before assigning roles
 - **Anti-Bypass** — New members auto-quarantine on join
 - **Cryptographic Tokens** — Unpredictable, secure verification tokens
 
-### <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Performance & Scale
+### <img src="https://api.iconify.design/lucide:zap.svg?color=%235865f2" width="20" align="absmiddle"> Performance & Scale
 - **Edge-Hosted Captcha** — Cloudflare global CDN for <100ms response times
 - **Pull Architecture** — Zero incoming connections, no DDoS surface
 - **Multi-Server** — One bot instance handles unlimited servers simultaneously
 - **Zero Dependencies** — Worker uses only native `fetch()`, no npm bloat
 - **Instant Deployment** — Deploy to production in seconds
 
-### <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg> Configuration
+### <img src="https://api.iconify.design/lucide:sliders.svg?color=%235865f2" width="20" align="absmiddle"> Configuration
 - **Slash Commands** — Modern Discord UI with `/panel` and `/setup`
 - **Per-Server Config** — Different roles and settings per guild
 - **Flexible Security Levels** — Choose your captcha intensity
 - **Customizable Pages** — Edit verification UI directly in worker code
 - **Auto-Setup** — Control panel creates itself when bot joins
 
-### <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg> User Experience
+### <img src="https://api.iconify.design/lucide:user-check.svg?color=%235865f2" width="20" align="absmiddle"> User Experience
 - **Obsidian UI** — Beautiful dark/light theme with Components V2
 - **Fast Verification** — Complete process in <20 seconds
 - **Clear Feedback** — Real-time status updates
@@ -132,7 +132,7 @@ User joins → Bot auto-quarantines → User clicks link → Solves captcha → 
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M12 6V2M12 22v-4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M2 12h4M18 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"></path></svg> Tech Stack
+## <img src="https://api.iconify.design/lucide:cpu.svg?color=%235865f2" width="22" align="absmiddle"> Tech Stack
 
 | Layer | Technology | Purpose | Why? |
 |-------|-----------|---------|------|
@@ -145,7 +145,7 @@ User joins → Bot auto-quarantines → User clicks link → Solves captcha → 
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Installation
+## <img src="https://api.iconify.design/lucide:download.svg?color=%235865f2" width="22" align="absmiddle"> Installation
 
 ### Prerequisites
 
@@ -277,7 +277,7 @@ npm start
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg> Configuration
+## <img src="https://api.iconify.design/lucide:sliders.svg?color=%235865f2" width="22" align="absmiddle"> Configuration
 
 ### Automatic Setup
 
@@ -305,7 +305,7 @@ Access: **Server Administrator only**
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg> Security Levels
+## <img src="https://api.iconify.design/lucide:shield-check.svg?color=%235865f2" width="22" align="absmiddle"> Security Levels
 
 Choose your security level based on your server's needs:
 
@@ -323,7 +323,7 @@ Small Server → image-captcha → Medium Growth → hcaptcha → High Targets �
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> Commands
+## <img src="https://api.iconify.design/lucide:terminal.svg?color=%235865f2" width="22" align="absmiddle"> Commands
 
 ### User Commands
 
@@ -347,51 +347,51 @@ Small Server → image-captcha → Medium Growth → hcaptcha → High Targets �
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg> Project Structure
+## <img src="https://api.iconify.design/lucide:folder.svg?color=%235865f2" width="22" align="absmiddle"> Project Structure
 
 ```
 verify-hydra/
 │
 ├── bot/
 │   ├── src/
-│   │   ├── index.js                       # Bot startup & client init
-│   │   ├── deploy-commands.js             # Slash command registration
+│   │   ├── index.js                        # Bot startup & client init
+│   │   ├── deploy-commands.js              # Slash command registration
 │   │   │
 │   │   ├── events/
-│   │   │   ├── guildCreate.js             # Control panel on join
+│   │   │   ├── guildCreate.js              # Control panel on join
 │   │   │   ├── guildMemberAdd.js          # Auto-quarantine members
-│   │   │   └── interactionCreate.js       # Handle all interactions
+│   │   │   └── interactionCreate.js        # Handle all interactions
 │   │   │
 │   │   └── utils/
-│   │       └── supabase.js                # Database queries & helper
+│   │       └── supabase.js                 # Database queries & helper
 │   │
-│   ├── .env.example                       # Environment template
+│   ├── .env.example                        # Environment template
 │   └── package.json
 │
 ├── worker/
-│   ├── index.js                           # Complete backend (single file)
+│   ├── index.js                            # Complete backend (single file)
 │   │   ├── API routes (create session, verify token, get config)
 │   │   ├── Frontend (HTML/CSS for captcha page)
 │   │   └── Captcha logic (hCaptcha + SVG)
 │   │
-│   ├── wrangler.toml                      # Deployment config
+│   ├── wrangler.toml                       # Deployment config
 │   └── package.json
 │
 ├── database/
-│   └── schema.sql                         # PostgreSQL schema
+│   └── schema.sql                          # PostgreSQL schema
 │       ├── guild_settings table
 │       └── active_sessions table
 │
 ├── assets/
 │   └── icon.svg
 │
-├── README.md                              # This file
-└── LICENSE                                # MIT License
+├── README.md                               # This file
+└── LICENSE                                 # MIT License
 ```
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a4 4 0 0 1 4-4h2a4 4 0 0 1 4 4v4"></path></svg> Environment Variables
+## <img src="https://api.iconify.design/lucide:key.svg?color=%235865f2" width="22" align="absmiddle"> Environment Variables
 
 ### Bot (.env)
 
@@ -407,6 +407,7 @@ verify-hydra/
 ### Worker (wrangler.toml)
 
 **Variables** (public, visible in logs):
+
 ```toml
 [vars]
 SUPABASE_URL = "https://project.supabase.co"
@@ -416,6 +417,7 @@ ENVIRONMENT = "production"
 ```
 
 **Secrets** (encrypted, not visible):
+
 ```bash
 npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY
 npx wrangler secret put INTERNAL_API_KEY
@@ -424,7 +426,7 @@ npx wrangler secret put HCAPTCHA_SECRET
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M4 4.5A2.5 2.5 0 0 1 6.5 7H20"></path></svg> Advanced
+## <img src="https://api.iconify.design/lucide:code.svg?color=%235865f2" width="22" align="absmiddle"> Advanced
 
 ### Custom Verification Page
 
@@ -472,9 +474,10 @@ WHERE active = true;
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4M12 8h.01"></path></svg> FAQ
+## <img src="https://api.iconify.design/lucide:help-circle.svg?color=%235865f2" width="22" align="absmiddle"> FAQ
 
 ### Can I skip hCaptcha?
+
 **Yes.** Set security level to `image-captcha`. The SVG captcha alone works fine for smaller servers.
 
 ```
@@ -482,12 +485,15 @@ WHERE active = true;
 ```
 
 ### Can I customize the verification page?
+
 **Absolutely.** The entire frontend lives in `worker/index.js`. Edit CSS, HTML, and layout directly. No separate frontend needed.
 
 ### Can multiple servers use one bot?
+
 **Yes.** That's the whole point! One bot instance, unlimited servers. Each server has independent configuration.
 
 ### Why pull-based instead of webhooks?
+
 **Security & Simplicity:**
 - No incoming HTTP traffic to open firewall
 - No port forwarding needed
@@ -496,11 +502,12 @@ WHERE active = true;
 - Works behind any NAT
 
 ### What if the bot goes offline?
+
 **Verification continues.** Users can still complete verification while the bot is down. When the bot comes back online, it catches up on all pending role assignments.
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg> Troubleshooting
+## <img src="https://api.iconify.design/lucide:alert-triangle.svg?color=%235865f2" width="22" align="absmiddle"> Troubleshooting
 
 ### Bot doesn't respond to commands
 
@@ -543,7 +550,7 @@ SELECT * FROM active_sessions WHERE token = 'xxx';
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> Contributing
+## <img src="https://api.iconify.design/lucide:git-pull-request.svg?color=%235865f2" width="22" align="absmiddle"> Contributing
 
 We'd love your contributions! Whether it's bug fixes, features, or documentation.
 
@@ -557,7 +564,7 @@ We'd love your contributions! Whether it's bug fixes, features, or documentation
 
 ---
 
-## <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: inline; margin-right: 8px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg> License
+## <img src="https://api.iconify.design/lucide:file-text.svg?color=%235865f2" width="22" align="absmiddle"> License
 
 Licensed under the **MIT License** — see [LICENSE](LICENSE) file for details.
 
