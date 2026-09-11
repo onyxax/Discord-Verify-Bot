@@ -163,8 +163,8 @@ Before you begin, make sure you have:
 ### Step 1 — Clone Repository
 
 ```bash
-git clone https://github.com/your-username/verify-hydra.git
-cd verify-hydra
+git clone https://github.com/onyxax/VerifyHydra.git
+cd VerifyHydra
 npm install
 ```
 
@@ -212,17 +212,17 @@ npx wrangler secret put HCAPTCHA_SECRET
 #### Configure wrangler.toml
 
 ```toml
-name = "verify-hydra"
+name = "VerifyHydra"
 main = "index.js"
 compatibility_date = "2026-06-07"
 
 [env.production]
-name = "verify-hydra-prod"
+name = "VerifyHydra-prod"
 
 [vars]
 SUPABASE_URL = "https://your-project.supabase.co"
 HCAPTCHA_SITEKEY = "your-sitekey"
-FRONTEND_BASE_URL = "https://verify-hydra.your-domain.workers.dev"
+FRONTEND_BASE_URL = "https://verifyhydra.your-domain.workers.dev"
 ENVIRONMENT = "production"
 ```
 
@@ -230,8 +230,8 @@ ENVIRONMENT = "production"
 
 ```bash
 npx wrangler deploy
-# Output: ✓ Uploaded verify-hydra (1.23 sec)
-#   -> https://verify-hydra.your-domain.workers.dev
+# Output: ✓ Uploaded VerifyHydra (1.23 sec)
+#   -> https://verifyhydra.your-domain.workers.dev
 ```
 
 **Copy your worker URL** — you'll need it for the bot.
@@ -251,7 +251,7 @@ DISCORD_TOKEN=your_bot_token_here
 DISCORD_CLIENT_ID=your_client_id_here
 
 # Verify Hydra
-HYDRA_WORKER_URL=https://verify-hydra.your-domain.workers.dev
+HYDRA_WORKER_URL=https://verifyhydra.your-domain.workers.dev
 INTERNAL_API_KEY=same-key-as-worker
 
 # Supabase
@@ -350,7 +350,7 @@ Small Server → image-captcha → Medium Growth → hcaptcha → High Targets �
 ## <img src="https://api.iconify.design/lucide:folder.svg?color=%235865f2" width="22" align="absmiddle"> Project Structure
 
 ```
-verify-hydra/
+VerifyHydra/
 │
 ├── bot/
 │   ├── src/
@@ -399,7 +399,7 @@ verify-hydra/
 |----------|----------|------|---------|
 | `DISCORD_TOKEN` | Yes | String | `MzkyNz...` |
 | `DISCORD_CLIENT_ID` | Yes | String | `123456789...` |
-| `HYDRA_WORKER_URL` | Yes | URL | `https://verify-hydra.workers.dev` |
+| `HYDRA_WORKER_URL` | Yes | URL | `https://verifyhydra.workers.dev` |
 | `INTERNAL_API_KEY` | Yes | String | `your-32-char-secret-key` |
 | `SUPABASE_URL` | Yes | URL | `https://abcd.supabase.co` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | String | `eyJhbGc...` |
@@ -412,7 +412,7 @@ verify-hydra/
 [vars]
 SUPABASE_URL = "https://project.supabase.co"
 HCAPTCHA_SITEKEY = "00000000-0000-0000-0000-000000000000"
-FRONTEND_BASE_URL = "https://verify-hydra.workers.dev"
+FRONTEND_BASE_URL = "https://verifyhydra.workers.dev"
 ENVIRONMENT = "production"
 ```
 
