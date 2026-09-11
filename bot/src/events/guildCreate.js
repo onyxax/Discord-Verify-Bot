@@ -1,11 +1,16 @@
 import {
   ChannelType,
   PermissionFlagsBits,
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ContainerBuilder,
+  SectionBuilder,
+  TextDisplayBuilder,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  MessageFlags,
 } from 'discord.js';
 
 export async function handleGuildCreate(client, guild) {
@@ -61,50 +66,36 @@ export async function handleGuildCreate(client, guild) {
       return;
     }
 
-    const embed = new EmbedBuilder()
-      .setTitle('VERIFY HYDRA | CONTROL PANEL')
-      .setDescription(
-        'Configure the verification system for this server.\n' +
-        'All settings are restricted to the Server Owner.\n\n' +
-        '-> Step 1: Select the public verification channel\n' +
-        '-> Step 2: Select the role granted upon verification\n' +
-        '-> Step 3: Select the quarantine role for new members\n' +
-        '-> Step 4: Choose the security intensity level\n' +
-        '-> Step 5: Click "Save and Initialize"'
-      )
-      .setColor(0xffffff)
-      .addFields(
-        {
-          name: '\u2588 TARGET CHANNEL',
-          value: 'Select the channel where the verification prompt will be posted.',
-          inline: false,
-        },
-        {
-          name: '\u2588 VERIFIED ROLE',
-          value: 'Select the role assigned to verified members.',
-          inline: false,
-        },
-        {
-          name: '\u2588 QUARANTINE ROLE',
-          value: 'Select the role assigned to new unverified members.',
-          inline: false,
-        },
-        {
-          name: '\u2588 SECURITY LEVEL',
-          value:
-            '`image-captcha` | Image-based challenge\n' +
-            '`hcaptcha` | hCaptcha widget integration\n' +
-            '`dual-layer` | Both captcha layers (Recommended)',
-          inline: false,
-        }
-      )
-      .setFooter({ text: 'Verify Hydra | Automated Security Perimeter' })
-      .setTimestamp();
+    // ── Components V2: كارد احترافي + زر داخل الكارد
+    const headerText = new TextDisplayBuilder().setContent(
+      `# VERIFY HYDRA | CONTROL PANEL\n` +
+      `-# Automated Security Perimeter • Owner Only\n` +
+      `**${guild.name}**`
+    );
+    const stepsText = new TextDisplayBuilder().setContent(
+      `Configure: \`1\` verification channel  •  \`2\` Verified role  •  \`3\` Quarantine role  •  \`4\` security level`
+    );
+    const fieldsRow = new TextDisplayBuilder().setContent(
+      `### TARGET CHANNEL\nSelect the channel where the verification prompt will be posted.\n\n` +
+      `### VERIFIED ROLE\nSelect the role assigned to verified members.\n\n` +
+      `### QUARANTINE ROLE\nSelect the role assigned to new unverified members.`
+    );
+    const securityText = new TextDisplayBuilder().setContent(
+      `### SECURITY LEVEL\n\`image-captcha\` • \`hcaptcha\` • \`dual-layer\` (Recommended)`
+    );
 
     const channels = guild.channels.cache.filter((ch) => ch.type === ChannelType.GuildText);
     const roles = guild.roles.cache.filter((r) => !r.managed && r.id !== guild.id);
 
-    const components = [];
+    const container = new ContainerBuilder()
+      .setAccentColor(0xffffff)
+      .addTextDisplayComponents(headerText)
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(stepsText)
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(fieldsRow)
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(securityText);
 
     if (channels.size > 0) {
       const channelSelect = new StringSelectMenuBuilder()
@@ -117,7 +108,7 @@ export async function handleGuildCreate(client, guild) {
             description: `#${ch.name}`,
           }))
         );
-      components.push(new ActionRowBuilder().addComponents(channelSelect));
+      container.addActionRowComponents(new ActionRowBuilder().addComponents(channelSelect));
     }
 
     if (roles.size > 0) {
@@ -131,7 +122,7 @@ export async function handleGuildCreate(client, guild) {
             description: `Role: ${r.name}`,
           }))
         );
-      components.push(new ActionRowBuilder().addComponents(verifiedRoleSelect));
+      container.addActionRowComponents(new ActionRowBuilder().addComponents(verifiedRoleSelect));
 
       const unverifiedRoleSelect = new StringSelectMenuBuilder()
         .setCustomId('hydra_select_unverified_role')
@@ -143,41 +134,40 @@ export async function handleGuildCreate(client, guild) {
             description: `Role: ${r.name}`,
           }))
         );
-      components.push(new ActionRowBuilder().addComponents(unverifiedRoleSelect));
+      container.addActionRowComponents(new ActionRowBuilder().addComponents(unverifiedRoleSelect));
     }
 
     const securitySelect = new StringSelectMenuBuilder()
       .setCustomId('hydra_select_security')
       .setPlaceholder('Select security intensity')
       .addOptions(
-        {
-          label: 'Image Captcha',
-          value: 'image-captcha',
-          description: 'Visual challenge verification',
-        },
-        {
-          label: 'hCaptcha',
-          value: 'hcaptcha',
-          description: 'hCaptcha widget verification',
-        },
-        {
-          label: 'Dual-Layer (Recommended)',
-          value: 'dual-layer',
-          description: 'Maximum security - both captcha types',
-        }
+        { label: 'Image Captcha', value: 'image-captcha', description: 'Visual challenge verification' },
+        { label: 'hCaptcha', value: 'hcaptcha', description: 'hCaptcha widget verification' },
+        { label: 'Dual-Layer (Recommended)', value: 'dual-layer', description: 'Maximum security - both captcha types' }
       );
-    components.push(new ActionRowBuilder().addComponents(securitySelect));
+    container.addActionRowComponents(new ActionRowBuilder().addComponents(securitySelect));
 
     const saveButton = new ButtonBuilder()
       .setCustomId('hydra_save_config')
       .setLabel('Save and Initialize')
       .setStyle(ButtonStyle.Success);
-    components.push(new ActionRowBuilder().addComponents(saveButton));
+
+    container.addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`**Ready to save?**\nMake sure all four fields are selected then click the button on the right.`)
+        )
+        .setButtonAccessory(saveButton)
+    );
+
+    container.addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(`-# Verify Hydra • Edge Verification • ${guild.name}`)
+    );
 
     try {
       await controlChannel.send({
-        embeds: [embed],
-        components,
+        components: [container],
+        flags: MessageFlags.IsComponentsV2,
       });
       console.log(`[Verify Hydra] Control panel created in ${guild.name} (${guild.id})`);
     } catch (sendError) {

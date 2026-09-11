@@ -90,10 +90,10 @@ function generateCaptchaText() {
 function generateCaptchaSVG(text) {
   const width = 200;
   const height = 70;
-  const colors = ['#ffffff', '#e0e0e0', '#cccccc', '#bbbbbb', '#dddddd'];
+  const colors = ['#fafafa', '#e4e4e7', '#d4d4d8', '#a1a1aa', '#ffffff'];
 
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">`;
-  svg += `<rect width="${width}" height="${height}" fill="#0d0d0d"/>`;
+  svg += `<rect width="${width}" height="${height}" fill="#27272a"/>`;
 
   for (let i = 0; i < 6; i++) {
     const x1 = Math.floor(Math.random() * width);
@@ -144,44 +144,56 @@ async function fetchSession(env, token) {
 // Shared CSS - High Contrast Matte Black/White
 // ─────────────────────────────────────────────────────────────────────────────
 
+const ICON_SERVER = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+const ICON_BOT = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>`;
+const ICON_KEY = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M8 15.5L15 8.5"/><path d="M14 7l3 3"/><path d="M15 5l2 2"/></svg>`;
+
 const SHARED_CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#000;color:#ffffff;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.card{max-width:460px;width:100%;padding:40px 32px;background:#0a0a0a;border:2px solid #333;border-radius:0}
-.title{font-size:18px;font-weight:700;letter-spacing:4px;color:#ffffff;text-transform:uppercase;text-align:center;margin-bottom:8px}
-.subtitle{font-size:11px;color:#888;text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
-.server-tag{font-size:13px;color:#ffffff;text-align:center;margin-bottom:28px;letter-spacing:1px;font-weight:600}
-.field{margin-bottom:20px}
-.label{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:#888;margin-bottom:8px;font-weight:600}
-.val{font-size:13px;color:#ffffff;font-family:'Courier New',monospace;padding:12px 16px;background:#111;border:2px solid #333;border-radius:0}
-.captcha-wrap{display:flex;justify-content:center;margin:24px 0}
-.captcha-img-wrap{margin-bottom:16px;text-align:center}
-.captcha-img-wrap img{border:2px solid #333;display:block;margin:0 auto}
-.captcha-input{width:100%;padding:14px 16px;background:#111;border:2px solid #333;color:#ffffff;font-family:'Courier New',monospace;font-size:16px;letter-spacing:4px;text-align:center;border-radius:0;outline:none;transition:border-color .15s}
-.captcha-input:focus{border-color:#ffffff}
-.captcha-input::placeholder{color:#555}
-.btn{width:100%;padding:14px 20px;background:#ffffff;color:#000000;border:none;border-radius:0;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .15s}
-.btn:hover{background:#e0e0e0}
-.btn:disabled{background:#222;color:#555;cursor:not-allowed;border:2px solid #333}
-.msg{padding:14px 18px;border-radius:0;font-size:12px;text-align:center;display:none;margin-top:16px;font-weight:600;letter-spacing:0.5px}
-.msg.ok{display:block;background:#0a1a0a;border:2px solid #1a5a1a;color:#5aff5a}
-.msg.err{display:block;background:#1a0a0a;border:2px solid #5a1a1a;color:#ff5a5a}
-.msg.proc{display:block;background:#0a0a1a;border:2px solid #1a1a5a;color:#5a5aff}
-.stage-indicator{font-size:11px;color:#ffffff;text-align:center;margin-bottom:20px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:10px 0;border-bottom:2px solid #333}
+body{font-family:Inter,'Segoe UI',system-ui,-apple-system,sans-serif;background:#0f0f0f;color:#fafafa;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{max-width:420px;width:100%;padding:28px;background:#1a1a1a;border:1px solid #27272a;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
+.card-head{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:16px}
+.card-head .avatar{width:32px;height:32px;border-radius:50%;background:#27272a;border:1px solid #3f3f46;display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.card-head .avatar img{width:100%;height:100%;object-fit:cover}
+.card-head .avatar svg{opacity:0.9}
+.title{font-size:19px;font-weight:600;letter-spacing:-0.02em;color:#fafafa;text-align:center;margin-bottom:4px}
+.subtitle{font-size:13px;color:#a1a1aa;text-align:center;margin-bottom:16px;font-weight:400;line-height:1.5}
+.server-tag{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#27272a;border:1px solid #3f3f46;border-radius:999px;font-size:12px;color:#e4e4e7;text-align:center;margin:0 auto;font-weight:500;letter-spacing:0.01em}
+.server-tag-wrap{text-align:center;margin-bottom:20px}
+.server-tag svg{opacity:0.8}
+.field{margin-bottom:16px}
+.label{font-size:11px;letter-spacing:0.06em;color:#71717a;margin-bottom:8px;font-weight:500;text-transform:uppercase}
+.val{font-size:13px;color:#e4e4e7;font-family:ui-monospace,Menlo,monospace;padding:10px 14px;background:#27272a;border:1px solid #3f3f46;border-radius:8px;word-break:break-all}
+.captcha-wrap{display:flex;justify-content:center;margin:20px 0}
+.captcha-img-wrap{margin-bottom:14px;text-align:center}
+.captcha-img-wrap img{border:1px solid #3f3f46;border-radius:8px;display:block;margin:0 auto;overflow:hidden}
+.captcha-input{width:100%;padding:12px 14px;background:#27272a;border:1px solid #3f3f46;color:#fafafa;font-family:ui-monospace,Menlo,monospace;font-size:15px;letter-spacing:0.2em;text-align:center;border-radius:8px;outline:none;transition:all .15s}
+.captcha-input:focus{border-color:#fafafa;background:#2a2a2e}
+.captcha-input::placeholder{color:#52525b;letter-spacing:0.05em}
+.btn{width:100%;padding:13px 20px;background:#fafafa;color:#09090b;border:none;border-radius:8px;font-size:14px;font-weight:600;letter-spacing:-0.01em;cursor:pointer;transition:all .15s}
+.btn:hover{background:#e4e4e7}
+.btn:active{transform:scale(0.99)}
+.btn:disabled{background:#27272a;color:#52525b;cursor:not-allowed;border:1px solid #3f3f46}
+.msg{padding:12px 16px;border-radius:8px;font-size:13px;text-align:center;display:none;margin-top:16px;font-weight:500;line-height:1.4}
+.msg.ok{display:block;background:#14532d;border:1px solid #166534;color:#bbf7d0}
+.msg.err{display:block;background:#7f1d1d;border:1px solid #991b1b;color:#fecaca}
+.msg.proc{display:block;background:#1e3a5f;border:1px solid #1e40af;color:#bfdbfe}
+.stage-indicator{font-size:11px;color:#a1a1aa;text-align:center;margin-bottom:16px;letter-spacing:0.06em;text-transform:uppercase;font-weight:500;padding:8px 12px;background:#27272a;border-radius:999px;display:inline-block;margin-left:auto;margin-right:auto}
+.stage-wrap{text-align:center;margin-bottom:16px}
 .hidden{display:none!important}
-.foot{text-align:center;margin-top:28px;padding-top:16px;border-top:2px solid #222}
-.foot span{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:3px;font-weight:600}
+.foot{text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #27272a}
+.foot span{font-size:11px;color:#71717a;letter-spacing:0.02em;font-weight:400}
 `;
 
 const ERROR_CSS = `
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;background:#000;color:#ffffff;min-height:100vh;display:flex;align-items:center;justify-content:center}
-.card{max-width:460px;width:100%;padding:40px 32px;background:#0a0a0a;border:2px solid #333;border-radius:0;text-align:center}
-.title{font-size:16px;font-weight:700;letter-spacing:3px;color:#ff5a5a;text-transform:uppercase;margin-bottom:16px}
-.desc{font-size:13px;color:#888;line-height:1.8;margin-bottom:24px}
-.line{width:60px;height:2px;background:#333;margin:0 auto 24px}
-.foot{text-align:center;margin-top:20px;padding-top:16px;border-top:2px solid #222}
-.foot span{font-size:10px;color:#555;text-transform:uppercase;letter-spacing:3px;font-weight:600}
+body{font-family:Inter,'Segoe UI',system-ui,sans-serif;background:#0f0f0f;color:#fafafa;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.card{max-width:420px;width:100%;padding:32px;background:#1a1a1a;border:1px solid #27272a;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.4);text-align:center}
+.title{font-size:18px;font-weight:600;letter-spacing:-0.02em;color:#f87171;margin-bottom:12px}
+.desc{font-size:14px;color:#a1a1aa;line-height:1.6;margin-bottom:24px}
+.line{width:32px;height:2px;background:#3f3f46;margin:0 auto 24px;border-radius:999px}
+.foot{text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #27272a}
+.foot span{font-size:11px;color:#71717a;letter-spacing:0.02em}
 `;
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -260,15 +272,19 @@ async function serveAuthPage(url, env) {
 </head>
 <body>
 <div class="card">
-  <div class="title">Verify Hydra</div>
-  <div class="subtitle">Secure Access Gateway</div>
-  <div class="server-tag">${guildName}</div>
+  <div class="card-head">
+    <div class="avatar" title="Server">${ICON_SERVER}</div>
+    <div class="title" style="margin-bottom:0">Verify Hydra</div>
+    <div class="avatar" title="Bot">${ICON_BOT}</div>
+  </div>
+  <div class="subtitle">Verify your account to join this server — it only takes a moment</div>
+  <div class="server-tag-wrap"><div class="server-tag">${ICON_SERVER}<span>${guildName}</span></div></div>
   <div class="field">
-    <div class="label">Session Token</div>
+    <div class="label" style="display:flex;align-items:center;gap:6px;justify-content:center">${ICON_KEY} Session Token</div>
     <div class="val">${token.substring(0, 16)}...</div>
   </div>
 
-  <div class="stage-indicator" id="stageIndicator">${isDualLayer && !hcaptchaPassed ? 'STAGE 1 OF 2: HCAPTCHA' : isDualLayer ? 'STAGE 2 OF 2: IMAGE CAPTCHA' : ''}</div>
+  <div class="stage-wrap"><div class="stage-indicator" id="stageIndicator">${isDualLayer && !hcaptchaPassed ? 'Step 1 of 2 — Human check' : isDualLayer ? 'Step 2 of 2 — Type the text' : ''}</div></div>
 
   <div id="hcaptchaSection" class="${showHcaptcha ? '' : 'hidden'}">
     <div class="captcha-wrap" id="cw"></div>
@@ -279,14 +295,14 @@ async function serveAuthPage(url, env) {
       <img src="${captchaImage}" alt="Captcha" width="200" height="70"/>
     </div>
     <div class="field">
-      <div class="label">Enter the text shown above</div>
-      <input type="text" class="captcha-input" id="captchaInput" placeholder="Enter captcha text" autocomplete="off" spellcheck="false"/>
+      <div class="label" style="display:flex;align-items:center;gap:6px;justify-content:center">${ICON_BOT} Type the characters above</div>
+      <input type="text" class="captcha-input" id="captchaInput" placeholder="Enter text" autocomplete="off" spellcheck="false"/>
     </div>
   </div>
 
   <button class="btn" id="vb" disabled>Complete Verification</button>
   <div class="msg" id="mg"></div>
-  <div class="foot"><span>Verify Hydra | Edge Verification</span></div>
+  <div class="foot"><span style="display:inline-flex;align-items:center;gap:6px;justify-content:center">${ICON_BOT} Verify Hydra • Trusted verification</span></div>
 </div>
 <script>
 (function(){
@@ -305,8 +321,8 @@ async function serveAuthPage(url, env) {
   function sm(x,c){mg.textContent=x;mg.className="msg "+c}
   function updateUI(){
     if(dl){
-      if(stage===1){hs.classList.remove("hidden");is.classList.add("hidden");si.textContent="STAGE 1 OF 2: HCAPTCHA"}
-      else{hs.classList.add("hidden");is.classList.remove("hidden");si.textContent="STAGE 2 OF 2: IMAGE CAPTCHA"}
+      if(stage===1){hs.classList.remove("hidden");is.classList.add("hidden");si.textContent="Stage 1 of 2 — hCaptcha"}
+      else{hs.classList.add("hidden");is.classList.remove("hidden");si.textContent="Stage 2 of 2 — Image Captcha"}
     }
   }
 

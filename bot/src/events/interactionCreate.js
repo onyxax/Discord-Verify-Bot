@@ -1,11 +1,16 @@
 import {
-  EmbedBuilder,
   ActionRowBuilder,
   StringSelectMenuBuilder,
   ButtonBuilder,
   ButtonStyle,
   PermissionFlagsBits,
   MessageFlags,
+  ContainerBuilder,
+  SectionBuilder,
+  TextDisplayBuilder,
+  SeparatorBuilder,
+  SeparatorSpacingSize,
+  ThumbnailBuilder,
 } from 'discord.js';
 import { getGuildSettings, upsertGuildSettings, getPendingSession, getVerifiedSession } from '../utils/supabase.js';
 
@@ -50,51 +55,44 @@ async function handleSlashCommand(client, interaction) {
       });
     }
 
-    const embed = new EmbedBuilder()
-      .setTitle('VERIFY HYDRA | CONTROL PANEL')
-      .setDescription(
-        'Configure the verification system for this server.\n' +
-        'All settings are restricted to the Server Owner.\n\n' +
-        '-> Step 1: Select the public verification channel\n' +
-        '-> Step 2: Select the role granted upon verification\n' +
-        '-> Step 3: Select the quarantine role for new members\n' +
-        '-> Step 4: Choose the security intensity level\n' +
-        '-> Step 5: Click "Save and Initialize"'
-      )
-      .setColor(0xffffff)
-      .addFields(
-        {
-          name: '\u2588 TARGET CHANNEL',
-          value: 'Select the channel where the verification prompt will be posted.',
-          inline: false,
-        },
-        {
-          name: '\u2588 VERIFIED ROLE',
-          value: 'Select the role assigned to verified members.',
-          inline: false,
-        },
-        {
-          name: '\u2588 QUARANTINE ROLE',
-          value: 'Select the role assigned to new unverified members.',
-          inline: false,
-        },
-        {
-          name: '\u2588 SECURITY LEVEL',
-          value:
-            '`image-captcha` | Image-based challenge\n' +
-            '`hcaptcha` | hCaptcha widget integration\n' +
-            '`dual-layer` | Both captcha layers (Recommended)',
-          inline: false,
-        }
-      )
-      .setFooter({ text: 'Verify Hydra | Automated Security Perimeter' })
-      .setTimestamp();
+    // ── Components V2: كارد احترافي عرضي + زر داخل الكارد عبر Section accessory
+    const guildIcon = interaction.guild.iconURL({ size: 128 });
+    const botIcon = client.user.displayAvatarURL({ size: 128 });
+
+    const headerText = new TextDisplayBuilder().setContent(
+      `# VERIFY HYDRA | CONTROL PANEL\n` +
+      `-# Automated Security Perimeter • Restricted to Server Owner\n` +
+      `**${interaction.guild.name}**`
+    );
+
+    const stepsText = new TextDisplayBuilder().setContent(
+      `Configure: \`1\` verification channel  •  \`2\` Verified role  •  \`3\` Quarantine role  •  \`4\` security level  •  \`5\` Save`
+    );
+
+    const fieldsRow = new TextDisplayBuilder().setContent(
+      `### TARGET CHANNEL\nSelect the channel where the verification prompt will be posted.\n\n` +
+      `### VERIFIED ROLE\nSelect the role assigned to verified members.\n\n` +
+      `### QUARANTINE ROLE\nSelect the role assigned to new unverified members.`
+    );
+
+    const securityText = new TextDisplayBuilder().setContent(
+      `### SECURITY LEVEL\n\`image-captcha\` • \`hcaptcha\` • \`dual-layer\` (Recommended)`
+    );
 
     const channels = interaction.guild.channels.cache.filter((ch) => ch.type === 0);
     const roles = interaction.guild.roles.cache.filter((r) => !r.managed && r.id !== interaction.guild.id);
 
-    const components = [];
+    const container = new ContainerBuilder()
+      .setAccentColor(0xffffff)
+      .addTextDisplayComponents(headerText)
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(stepsText)
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(fieldsRow)
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(false).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(securityText);
 
+    // إضافة القوائم كـ ActionRow داخل الكونتينر
     if (channels.size > 0) {
       const channelSelect = new StringSelectMenuBuilder()
         .setCustomId('hydra_select_channel')
@@ -106,7 +104,7 @@ async function handleSlashCommand(client, interaction) {
             description: `#${ch.name}`,
           }))
         );
-      components.push(new ActionRowBuilder().addComponents(channelSelect));
+      container.addActionRowComponents(new ActionRowBuilder().addComponents(channelSelect));
     }
 
     if (roles.size > 0) {
@@ -120,7 +118,7 @@ async function handleSlashCommand(client, interaction) {
             description: `Role: ${r.name}`,
           }))
         );
-      components.push(new ActionRowBuilder().addComponents(verifiedRoleSelect));
+      container.addActionRowComponents(new ActionRowBuilder().addComponents(verifiedRoleSelect));
 
       const unverifiedRoleSelect = new StringSelectMenuBuilder()
         .setCustomId('hydra_select_unverified_role')
@@ -132,38 +130,41 @@ async function handleSlashCommand(client, interaction) {
             description: `Role: ${r.name}`,
           }))
         );
-      components.push(new ActionRowBuilder().addComponents(unverifiedRoleSelect));
+      container.addActionRowComponents(new ActionRowBuilder().addComponents(unverifiedRoleSelect));
     }
 
     const securitySelect = new StringSelectMenuBuilder()
       .setCustomId('hydra_select_security')
       .setPlaceholder('Select security intensity')
       .addOptions(
-        {
-          label: 'Image Captcha',
-          value: 'image-captcha',
-          description: 'Visual challenge verification',
-        },
-        {
-          label: 'hCaptcha',
-          value: 'hcaptcha',
-          description: 'hCaptcha widget verification',
-        },
-        {
-          label: 'Dual-Layer (Recommended)',
-          value: 'dual-layer',
-          description: 'Maximum security - both captcha types',
-        }
+        { label: 'Image Captcha', value: 'image-captcha', description: 'Visual challenge verification' },
+        { label: 'hCaptcha', value: 'hcaptcha', description: 'hCaptcha widget verification' },
+        { label: 'Dual-Layer (Recommended)', value: 'dual-layer', description: 'Maximum security - both captcha types' }
       );
-    components.push(new ActionRowBuilder().addComponents(securitySelect));
+    container.addActionRowComponents(new ActionRowBuilder().addComponents(securitySelect));
 
     const saveButton = new ButtonBuilder()
       .setCustomId('hydra_save_config')
       .setLabel('Save and Initialize')
       .setStyle(ButtonStyle.Success);
-    components.push(new ActionRowBuilder().addComponents(saveButton));
 
-    await interaction.reply({ embeds: [embed], components, flags: [MessageFlags.Ephemeral] });
+    container.addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`**Ready to save?**\nMake sure all four fields are selected then click the button on the right.`)
+        )
+        .setButtonAccessory(saveButton)
+    );
+
+    container.addTextDisplayComponents(
+      new TextDisplayBuilder().setContent(`-# Verify Hydra • Edge Verification • ${interaction.guild.name}`)
+    );
+
+    // مع V2 لازم flag خاص، و ephemeral يبقى عبر OR
+    await interaction.reply({
+      components: [container],
+      flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+    });
   }
 
   if (interaction.commandName === 'setup') {
@@ -196,45 +197,62 @@ async function handleSlashCommand(client, interaction) {
       security_level: security,
     });
 
-    const verifyEmbed = new EmbedBuilder()
-      .setTitle('ACCESS VERIFICATION REQUIRED')
-      .setDescription(
-        'This server is protected by **Verify Hydra**.\n\n' +
-        `**Server**\n\`\`\`\n${interaction.guild.name}\n\`\`\`\n` +
-        '**How it works**\n' +
-        '1. Click the button below to start\n' +
-        '2. Complete the captcha challenge on the secure page\n' +
-        '3. Return here — your role will be assigned automatically\n\n' +
-        '*Verification expires in 5 minutes.*'
+    const botIconV1 = client.user.displayAvatarURL({ size: 128, extension: 'png' });
+    const verifyContainer = new ContainerBuilder().setAccentColor(0xffffff);
+    verifyContainer.addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`## Verify to access this server`),
+          new TextDisplayBuilder().setContent(
+            `Verify your account to join this server — it only takes a moment.\n` +
+            `-# ${interaction.guild.name}  •  ${interaction.guild.memberCount} members  •  Security: ${security}`
+          )
+        )
+        .setThumbnailAccessory(new ThumbnailBuilder({ media: { url: botIconV1 } }))
+    );
+    verifyContainer
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(`**How to verify:** Click the button below → Complete the check on the site → Return — you're verified.`)
       )
-      .setColor(0xffffff)
-      .setThumbnail(interaction.guild.iconURL({ size: 128 }))
-      .setFooter({ text: `${interaction.guild.name} | Verify Hydra` })
-      .setTimestamp();
-
-    const verifyButton = new ButtonBuilder()
-      .setCustomId('hydra_verify_button')
-      .setLabel('Verify My Account')
-      .setStyle(ButtonStyle.Primary);
-
-    const verifyRow = new ActionRowBuilder().addComponents(verifyButton);
-
-    await channel.send({ embeds: [verifyEmbed], components: [verifyRow] });
-
-    const successEmbed = new EmbedBuilder()
-      .setTitle('CONFIGURATION SAVED')
-      .setDescription(
-        `**Channel:** <#${channel.id}>\n` +
-        `**Verified Role:** <@&${verifiedRole.id}>\n` +
-        `**Quarantine Role:** <@&${quarantineRole.id}>\n` +
-        `**Security:** \`${security}\``
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addActionRowComponents(
+        new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId('hydra_verify_button')
+            .setLabel('Verify my account')
+            .setStyle(ButtonStyle.Success)
+        )
       )
-      .setColor(0xffffff)
-      .setFooter({ text: 'Verify Hydra | System Initialized' });
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Powered by Verify Hydra • Trusted verification`));
 
-    await interaction.reply({ embeds: [successEmbed], flags: [MessageFlags.Ephemeral] });
-  }
-}
+    await channel.send({
+      components: [verifyContainer],
+      flags: MessageFlags.IsComponentsV2,
+    });
+
+    const successContainer = new ContainerBuilder()
+      .setAccentColor(0xffffff)
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## CONFIGURATION SAVED`))
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(`This server is now protected by Verify Hydra.`)
+      )
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          `Channel: <#${channel.id}>  •  Verified: <@&${verifiedRole.id}>  •  Quarantine: <@&${quarantineRole.id}>\n` +
+          `Security: \`${security}\``
+        )
+      )
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Verify Hydra | System Initialized`));
+
+    await interaction.reply({
+      components: [successContainer],
+      flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral,
+    });
+   }
+ }
 
 async function handleSelectMenu(interaction) {
   const { customId, values, guildId } = interaction;
@@ -255,37 +273,25 @@ async function handleSelectMenu(interaction) {
   if (customId === 'hydra_select_channel') {
     config.channelId = values[0];
     configStore.set(guildId, config);
-    return interaction.reply({
-      content: `Verification channel set to <#${values[0]}>.`,
-      flags: [MessageFlags.Ephemeral],
-    });
+    return interaction.deferUpdate();
   }
 
   if (customId === 'hydra_select_role') {
     config.roleId = values[0];
     configStore.set(guildId, config);
-    return interaction.reply({
-      content: `Verified role set to <@&${values[0]}>.`,
-      flags: [MessageFlags.Ephemeral],
-    });
+    return interaction.deferUpdate();
   }
 
   if (customId === 'hydra_select_security') {
     config.securityLevel = values[0];
     configStore.set(guildId, config);
-    return interaction.reply({
-      content: `Security level set to \`${values[0]}\`.`,
-      flags: [MessageFlags.Ephemeral],
-    });
+    return interaction.deferUpdate();
   }
 
   if (customId === 'hydra_select_unverified_role') {
     config.unverifiedRoleId = values[0];
     configStore.set(guildId, config);
-    return interaction.reply({
-      content: `Quarantine role set to <@&${values[0]}>.`,
-      flags: [MessageFlags.Ephemeral],
-    });
+    return interaction.deferUpdate();
   }
 }
 
@@ -342,48 +348,62 @@ async function handleSaveConfig(client, interaction) {
       });
     }
 
-    const verifyEmbed = new EmbedBuilder()
-      .setTitle('ACCESS VERIFICATION REQUIRED')
-      .setDescription(
-        'This server is protected by **Verify Hydra**.\n\n' +
-        `**Server**\n\`\`\`\n${interaction.guild.name}\n\`\`\`\n` +
-        '**How it works**\n' +
-        '1. Click the button below to start\n' +
-        '2. Complete the captcha challenge on the secure page\n' +
-        '3. Return here — your role will be assigned automatically\n\n' +
-        '*Verification expires in 5 minutes.*'
+    const botIconV2 = client.user.displayAvatarURL({ size: 128, extension: 'png' });
+    const verifyContainer2 = new ContainerBuilder().setAccentColor(0xffffff);
+    verifyContainer2.addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`## Verify to access this server`),
+          new TextDisplayBuilder().setContent(
+            `Verify your account to join this server — it only takes a moment.\n` +
+            `-# ${interaction.guild.name}  •  ${interaction.guild.memberCount} members  •  Security: ${config.securityLevel}`
+          )
+        )
+        .setThumbnailAccessory(new ThumbnailBuilder({ media: { url: botIconV2 } }))
+    );
+    verifyContainer2
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(`**How to verify:** Click the button below → Complete the check on the site → Return — you're verified.`)
       )
-      .setColor(0xffffff)
-      .setThumbnail(interaction.guild.iconURL({ size: 128 }))
-      .setFooter({ text: `${interaction.guild.name} | Verify Hydra` })
-      .setTimestamp();
-
-    const verifyButton = new ButtonBuilder()
-      .setCustomId('hydra_verify_button')
-      .setLabel('Verify My Account')
-      .setStyle(ButtonStyle.Primary);
-
-    const verifyRow = new ActionRowBuilder().addComponents(verifyButton);
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addActionRowComponents(
+        new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setCustomId('hydra_verify_button')
+            .setLabel('Verify my account')
+            .setStyle(ButtonStyle.Success)
+        )
+      )
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Powered by Verify Hydra • Trusted verification`));
 
     await verifyChannel.send({
-      embeds: [verifyEmbed],
-      components: [verifyRow],
+      components: [verifyContainer2],
+      flags: MessageFlags.IsComponentsV2,
     });
 
     configStore.delete(interaction.guildId);
 
-    const successEmbed = new EmbedBuilder()
-      .setTitle('CONFIGURATION SAVED')
-      .setDescription(
-        `**Channel:** <#${config.channelId}>\n` +
-        `**Verified Role:** <@&${config.roleId}>\n` +
-        `**Quarantine Role:** <@&${config.unverifiedRoleId}>\n` +
-        `**Security:** \`${config.securityLevel}\``
+    const successContainer2 = new ContainerBuilder()
+      .setAccentColor(0xffffff)
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## CONFIGURATION SAVED`))
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(`This server is now protected by Verify Hydra.`)
       )
-      .setColor(0xffffff)
-      .setFooter({ text: 'Verify Hydra | System Initialized' });
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(
+          `Channel: <#${config.channelId}>  •  Verified: <@&${config.roleId}>  •  Quarantine: <@&${config.unverifiedRoleId}>\n` +
+          `Security: \`${config.securityLevel}\``
+        )
+      )
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Verify Hydra | System Initialized`));
 
-    await interaction.editReply({ embeds: [successEmbed] });
+    await interaction.editReply({
+      components: [successContainer2],
+      flags: MessageFlags.IsComponentsV2,
+    });
 
     console.log(`[Verify Hydra] Config saved for guild ${interaction.guildId}`);
   } catch (error) {
@@ -419,14 +439,19 @@ async function handleVerifyButton(client, interaction) {
 
   try {
     if (await isAlreadyVerified(client, interaction)) {
-      const alreadyEmbed = new EmbedBuilder()
-        .setTitle('ACCOUNT STATUS')
-        .setDescription('Your account is already verified within this server. Full access is granted.')
-        .setColor(0x1a1a1a)
-        .setFooter({ text: 'Verify Hydra | Access Confirmed' })
-        .setTimestamp();
+      const alreadyContainer = new ContainerBuilder()
+        .setAccentColor(0xffffff)
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`## ACCOUNT STATUS`))
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`Your account is already verified within this server. Full access is granted.`)
+        )
+        .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+        .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Verify Hydra | Access Confirmed`));
 
-      return interaction.editReply({ embeds: [alreadyEmbed] });
+      return interaction.editReply({
+        components: [alreadyContainer],
+        flags: MessageFlags.IsComponentsV2,
+      });
     }
 
     const guildSettings = await getGuildSettings(interaction.guildId);
@@ -509,29 +534,39 @@ async function handleVerifyButton(client, interaction) {
 
     const finalUrl = parsedUrl.href;
 
-    const embed = new EmbedBuilder()
-      .setTitle('ACCESS VERIFICATION')
-      .setDescription(
-        'This server requires identity verification to ensure a secure environment.\n\n' +
-        `**Server**\n\`\`\`\n${interaction.guild.name}\n\`\`\`\n` +
-        '**Security Protocol**\n' +
-        'Click the button below to initiate the verification process. ' +
-        'You will be redirected to a secure page where you must complete a captcha challenge.\n\n' +
-        '*This link expires in 5 minutes.*'
+    const botIconLink = client.user.displayAvatarURL({ size: 128, extension: 'png' });
+    const verifyLinkContainer = new ContainerBuilder().setAccentColor(0xffffff);
+    verifyLinkContainer.addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`## Verify to access this server`),
+          new TextDisplayBuilder().setContent(
+            `Verify your account to join this server — it only takes a moment.\n` +
+            `-# ${interaction.guild.name}  •  ${interaction.guild.memberCount} members  •  Security: ${securityLevel}`
+          )
+        )
+        .setThumbnailAccessory(new ThumbnailBuilder({ media: { url: botIconLink } }))
+    );
+    verifyLinkContainer
+      .addTextDisplayComponents(
+        new TextDisplayBuilder().setContent(`**How to verify:** Click the button below → Complete the check on the site → Return — you're verified.`)
       )
-      .setColor(0xffffff)
-      .setThumbnail(interaction.guild.iconURL({ size: 128 }))
-      .setFooter({ text: 'Verify Hydra | Secure Access Gateway' })
-      .setTimestamp();
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addActionRowComponents(
+        new ActionRowBuilder().addComponents(
+          new ButtonBuilder()
+            .setLabel('Open verification site')
+            .setURL(finalUrl)
+            .setStyle(ButtonStyle.Link)
+        )
+      )
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# Powered by Verify Hydra • Trusted verification`));
 
-    const linkButton = new ButtonBuilder()
-      .setLabel('Start Verification')
-      .setURL(finalUrl)
-      .setStyle(ButtonStyle.Link);
-
-    const linkRow = new ActionRowBuilder().addComponents(linkButton);
-
-    const reply = await interaction.editReply({ embeds: [embed], components: [linkRow] });
+    const reply = await interaction.editReply({
+      components: [verifyLinkContainer],
+      flags: MessageFlags.IsComponentsV2,
+    });
 
     startVerificationPoller(client, interaction.user.id, interaction.guildId, interaction);
   } catch (error) {
@@ -604,28 +639,36 @@ async function sendVerificationComplete(client, interaction, userId, guildId) {
     const verifiedRole = guild.roles.cache.get(guildSettings.verified_role_id);
     const roleName = verifiedRole ? verifiedRole.name : 'Verified';
 
-    const successEmbed = new EmbedBuilder()
-      .setTitle('VERIFICATION COMPLETE')
-      .setDescription(
-        `<@${userId}>, your identity has been verified successfully.\n\n` +
-        `**Role Assigned**\n\`\`\`\n${roleName}\n\`\`\`\n` +
-        '**Status**\n' +
-        'You now have full access to this server. Welcome to the community.'
-      )
-      .setColor(0xffffff)
-      .setThumbnail(guild.iconURL({ size: 128 }))
-      .setFooter({ text: `${guild.name} | Verify Hydra` })
-      .setTimestamp();
+    const botIconComplete = client.user.displayAvatarURL({ size: 128, extension: 'png' });
+    const completeContainer = new ContainerBuilder().setAccentColor(0xffffff);
+    completeContainer.addSectionComponents(
+      new SectionBuilder()
+        .addTextDisplayComponents(
+          new TextDisplayBuilder().setContent(`## VERIFICATION COMPLETE`),
+          new TextDisplayBuilder().setContent(
+            `<@${userId}>, your identity has been verified successfully.\n\n` +
+            `Role Assigned: \`${roleName}\`\n` +
+            `Status: You now have full access to this server. Welcome to the community.`
+          )
+        )
+        .setThumbnailAccessory(new ThumbnailBuilder({ media: { url: botIconComplete } }))
+    );
+    completeContainer
+      .addSeparatorComponents(new SeparatorBuilder().setDivider(true).setSpacing(SeparatorSpacingSize.Small))
+      .addTextDisplayComponents(new TextDisplayBuilder().setContent(`-# ${guild.name} | Verify Hydra`));
 
-    const successPayload = { embeds: [successEmbed], components: [] };
+    const successPayloadV2 = {
+      components: [completeContainer],
+      flags: MessageFlags.IsComponentsV2,
+    };
 
     try {
-      await interaction.editReply(successPayload);
+      await interaction.editReply(successPayloadV2);
     } catch {
       try {
         await interaction.deleteReply();
       } catch {}
-      await interaction.followUp({ ...successPayload, flags: [MessageFlags.Ephemeral] });
+      await interaction.followUp({ ...successPayloadV2, flags: MessageFlags.Ephemeral | MessageFlags.IsComponentsV2 });
     }
   } catch (error) {
     console.error(`[Verify Hydra] Failed to send verification complete:`, error.message);
